@@ -4,10 +4,7 @@ let books = require("./booksdb.js");
 const regd_users = express.Router();
 
 let users = [
-    {
-        username: "admin",
-        password: "password"
-    },
+    
 ];
 
 const isValid = (username)=>{ //returns boolean
@@ -55,10 +52,19 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    const isbn = req.params.isbn;
-    console.log(req.session.username);
-    return res.status(300).json({message: "Yet to be implemented"});
-  });
+  const isbn = req.params.isbn;
+  const user = req.user.data;
+  
+  books[isbn]["reviews"][user] = req.body.review
+  return res.status(200).json(books);
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const user = req.user.data;
+  delete books[isbn]["reviews"][user];
+  return res.status(200).json({ message: `Review was removed by ${user}`})
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
