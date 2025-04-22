@@ -39,23 +39,40 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/', async (req, res) => {
+public_users.get('/', (req, res) => {
+  return res.status(200).json(books)
+});
+// Task 10 using axios with async/await
+public_users.get('/fetch-books', async (req, res) => {
   try {
-    const response = await axios.get(books);
+    const response = await axios.get('http://localhost:5000/');
+    console.log(JSON.stringify(response.data));
     
-    res.json(response.data);
-  }
-  catch (err) {
-    res.status(404).json({message: "asdas"})
+    return res.status(200).json(response.data);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch books" });
   }
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn', async function (req, res) {
+public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn
 
   return res.status(300).json(books[isbn]);
  });
+
+// Task 11 using axios with async/await
+public_users.get('/fetch-books-isbn/:isbn', async (req, res) => {
+  const isbn = req.params.isbn
+  try {
+    const response = await axios.get('http://localhost:5000/');
+    console.log(response.data[isbn]);
+    
+    return res.status(200).json(response.data[isbn]);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch books" });
+  }
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
@@ -71,6 +88,25 @@ public_users.get('/author/:author',function (req, res) {
   return res.status(300).json(booksByAuthor);
 });
 
+//Task 12 using axios with async/await
+public_users.get('/fetch-books-author/:author', async (req, res) => {
+  const author = req.params.author
+  const booksByAuthor = [];
+  try {
+    const response = await axios.get('http://localhost:5000/');
+    let bookKeys = Object.keys(response.data);
+    bookKeys.map(key => {
+      if (books[key]["author"] === author) {
+          booksByAuthor.push(books[key]);
+      };
+    });
+    console.log("Books by author:", booksByAuthor);
+    return res.status(200).json(booksByAuthor);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch books" });
+  }
+});
+
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
@@ -83,6 +119,25 @@ public_users.get('/title/:title',function (req, res) {
         };
     });
   return res.status(300).json(booksByTitle);
+});
+
+// Task 13 using axios with async/await
+public_users.get('/fetch-books-title/:title', async (req, res) => {
+  const title = req.params.title
+  const booksByTitle = [];
+  try {
+    const response = await axios.get('http://localhost:5000/');
+    let bookKeys = Object.keys(response.data);
+    bookKeys.map(key => {
+      if (response.data[key]["title"] === title) {
+          booksByTitle.push(books[key]);
+      };
+    });
+    console.log("Books by title:", booksByTitle);
+    return res.status(200).json(booksByTitle);
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch books" });
+  }
 });
 
 //  Get book review
